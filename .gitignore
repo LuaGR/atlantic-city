@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Build outputs - .NET
+**/bin/
+**/obj/
+
+# Build outputs - Next.js
+frontend/.next/
+frontend/out/
+frontend/dist/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Test coverage
+coverage/
+*.coverage
+
+# Docker
+docker-compose.override.yml
+
+# SQL
+*.sql.bak
+
+# Temporary files
+*.tmp
+*.temp
+
+# Docs
+TECHNICAL_TEST.md
