@@ -1,240 +1,227 @@
 {
   "info": {
-    "name": "Atlantic City API",
+    "_postman_id": "2de00ea7-da33-4f91-8d26-7ab4de1af06d",
+    "name": "Atlantic City Challenge",
+    "description": "API REST para el reto técnico de Atlantic City (.NET 9 Clean Architecture + PostgreSQL)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:5097",
-      "type": "string"
-    },
-    {
-      "key": "token",
-      "value": "",
-      "type": "string"
-    }
-  ],
   "item": [
     {
-      "name": "Health",
+      "name": "Auth",
       "item": [
         {
-          "name": "Health Check",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/health",
-              "host": ["{{base_url}}"],
-              "path": ["health"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Auth — /auth",
-      "item": [
-        {
-          "name": "Login Admin",
+          "name": "Login",
           "event": [
             {
               "listen": "test",
               "script": {
-                "type": "text/javascript",
                 "exec": [
-                  "var json = pm.response.json();",
-                  "if (json.token) {",
-                  "    pm.collectionVariables.set('token', json.token);",
+                  "var jsonData = pm.response.json();",
+                  "if(jsonData.token) {",
+                  "    pm.environment.set(\"jwt_token\", jsonData.token);",
                   "}"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"email\": \"admin@atlanticcity.com\",\n    \"password\": \"Password123!\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "login"]
-            }
-          }
-        },
-        {
-          "name": "Login User",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "var json = pm.response.json();",
-                  "if (json.token) {",
-                  "    pm.collectionVariables.set('token', json.token);",
-                  "}"
-                ]
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"user@atlanticcity.com\",\n    \"password\": \"Password123!\"\n}"
+              "raw": "{\n  \"email\": \"admin@atlanticcity.com\",\n  \"password\": \"Password123!\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "login"]
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
-          }
-        },
-        {
-          "name": "Login - Credenciales invalidas (401 esperado)",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"email\": \"noexiste@test.com\",\n    \"password\": \"wrong\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "login"]
-            }
-          }
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "Pedidos — /api/pedidos",
+      "name": "Pedidos",
       "item": [
         {
-          "name": "GET Listar pedidos",
+          "name": "Get All Pedidos",
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
             ],
             "url": {
-              "raw": "{{base_url}}/api/pedidos",
-              "host": ["{{base_url}}"],
-              "path": ["api", "pedidos"]
+              "raw": "{{baseUrl}}/api/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pedidos"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "GET Pedido por ID",
+          "name": "Get Pedido By Id",
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
             ],
             "url": {
-              "raw": "{{base_url}}/api/pedidos/1",
-              "host": ["{{base_url}}"],
-              "path": ["api", "pedidos", "1"]
+              "raw": "{{baseUrl}}/api/pedidos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "1"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "POST Crear pedido",
+          "name": "Create Pedido",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"numeroPedido\": \"PED-001\",\n    \"cliente\": \"Juan Perez\",\n    \"fecha\": \"2025-01-10T00:00:00Z\",\n    \"total\": 250.75,\n    \"estado\": 1\n}"
+              "raw": "{\n  \"numeroPedido\": \"ORD-2026-999\",\n  \"cliente\": \"Casino VIP Corp\",\n  \"fecha\": \"2026-04-14T00:00:00Z\",\n  \"total\": 15000.50,\n  \"estado\": \"Registrado\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/pedidos",
-              "host": ["{{base_url}}"],
-              "path": ["api", "pedidos"]
+              "raw": "{{baseUrl}}/api/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pedidos"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "PUT Editar pedido",
+          "name": "Update Pedido",
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"cliente\": \"Juan Perez Actualizado\",\n    \"fecha\": \"2025-01-15T00:00:00Z\",\n    \"total\": 380.00,\n    \"estado\": 2\n}"
+              "raw": "{\n  \"cliente\": \"Casino VIP Corp\",\n  \"fecha\": \"2026-04-14T00:00:00Z\",\n  \"total\": 20000.00,\n  \"estado\": \"Procesado\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/pedidos/1",
-              "host": ["{{base_url}}"],
-              "path": ["api", "pedidos", "1"]
+              "raw": "{{baseUrl}}/api/pedidos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "1"
+              ]
             }
-          }
+          },
+          "response": []
         },
         {
-          "name": "DELETE Pedido (soft delete)",
+          "name": "Delete Pedido (Soft Delete)",
           "request": {
             "method": "DELETE",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
             ],
             "url": {
-              "raw": "{{base_url}}/api/pedidos/1",
-              "host": ["{{base_url}}"],
-              "path": ["api", "pedidos", "1"]
+              "raw": "{{baseUrl}}/api/pedidos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "1"
+              ]
             }
-          }
-        },
-        {
-          "name": "POST Crear pedido - Total invalido (400 esperado)",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"numeroPedido\": \"PED-ERR\",\n    \"cliente\": \"Test\",\n    \"fecha\": \"2025-01-10T00:00:00Z\",\n    \"total\": -10,\n    \"estado\": 1\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/pedidos",
-              "host": ["{{base_url}}"],
-              "path": ["api", "pedidos"]
-            }
-          }
-        },
-        {
-          "name": "GET Pedidos - Sin token (401 esperado)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/pedidos",
-              "host": ["{{base_url}}"],
-              "path": ["api", "pedidos"]
-            }
-          }
+          },
+          "response": []
         }
       ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5252",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
     }
   ]
 }
