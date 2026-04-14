@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (newToken: string) => {
     localStorage.setItem('token', newToken);
     setToken(newToken);
-    router.push('/dashboard'); 
+    router.push('/pedidos'); 
   };
 
   const logout = () => {
