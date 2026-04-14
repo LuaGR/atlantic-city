@@ -1,9 +1,14 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Polly;
+using Polly.CircuitBreaker;
+using Polly.Retry;
 using Serilog;
 using AtlanticCity.Application.Interfaces;
 using AtlanticCity.Application.Services;
@@ -65,6 +70,38 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("global", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 100;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        limiterOptions.QueueLimit = 10;
+    });
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
+var retryPipeline = new ResiliencePipelineBuilder()
+    .AddRetry(new RetryStrategyOptions
+    {
+        MaxRetryAttempts = 3,
+        Delay = TimeSpan.FromSeconds(1),
+        BackoffType = DelayBackoffType.Exponential,
+        ShouldHandle = new PredicateBuilder().Handle<Exception>()
+    })
+    .AddCircuitBreaker(new CircuitBreakerStrategyOptions
+    {
+        FailureRatio = 0.5,
+        SamplingDuration = TimeSpan.FromSeconds(30),
+        MinimumThroughput = 5,
+        BreakDuration = TimeSpan.FromSeconds(15),
+        ShouldHandle = new PredicateBuilder().Handle<Exception>()
+    })
+    .Build();
+
+builder.Services.AddSingleton(retryPipeline);
+
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -72,20 +109,22 @@ app.UseMiddleware<SecurityHeadersMiddleware>();
 
 app.UseSerilogRequestLogging();
 
+app.UseRateLimiter();
+
 app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers().RequireRateLimiting("global");
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AtlanticCityDbContext>();
-    db.Database.EnsureCreated();
-    
+    db.Database.Migrate();
+
     if (!db.Usuarios.Any())
     {
         var admin = new AtlanticCity.Domain.Entities.Usuario
@@ -96,7 +135,7 @@ using (var scope = app.Services.CreateScope())
             Activo = true,
             CreatedAt = DateTime.UtcNow
         };
-        
+
         var user = new AtlanticCity.Domain.Entities.Usuario
         {
             Email = "user@atlanticcity.com",
@@ -105,11 +144,11 @@ using (var scope = app.Services.CreateScope())
             Activo = true,
             CreatedAt = DateTime.UtcNow
         };
-        
+
         db.Usuarios.AddRange(admin, user);
         db.SaveChanges();
-        
-        Log.Information("Seed users created: admin@atlanticcity.com, user@atlanticcity.com");
+
+        Log.Information("Seed users created");
     }
 }
 
