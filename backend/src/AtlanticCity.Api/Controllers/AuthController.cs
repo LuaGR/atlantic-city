@@ -6,7 +6,7 @@ using AtlanticCity.Application.Interfaces;
 namespace AtlanticCity.Api.Controllers;
 
 [ApiController]
-[Route("api/auth")]
+[Route("auth")]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
@@ -15,7 +15,7 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
-    [HttpPost]
+    [HttpPost("login")]
     [AllowAnonymous]
     public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginRequestDto request)
     {

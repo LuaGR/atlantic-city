@@ -34,7 +34,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<CreatePedidoValidator>();
 
-var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "AtlanticCitySecretKey2026!";
+var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "AtlanticCitySecretKey2026!#SECURE";
 var jwtIssuer = "AtlanticCity";
 var jwtAudience = "AtlanticCity";
 
@@ -85,6 +85,32 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AtlanticCityDbContext>();
     db.Database.EnsureCreated();
+    
+    if (!db.Usuarios.Any())
+    {
+        var admin = new AtlanticCity.Domain.Entities.Usuario
+        {
+            Email = "admin@atlanticcity.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Password123!"),
+            Rol = AtlanticCity.Domain.Entities.RolUsuario.Admin,
+            Activo = true,
+            CreatedAt = DateTime.UtcNow
+        };
+        
+        var user = new AtlanticCity.Domain.Entities.Usuario
+        {
+            Email = "user@atlanticcity.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Password123!"),
+            Rol = AtlanticCity.Domain.Entities.RolUsuario.User,
+            Activo = true,
+            CreatedAt = DateTime.UtcNow
+        };
+        
+        db.Usuarios.AddRange(admin, user);
+        db.SaveChanges();
+        
+        Log.Information("Seed users created: admin@atlanticcity.com, user@atlanticcity.com");
+    }
 }
 
 Log.Information("Atlantic City API started");

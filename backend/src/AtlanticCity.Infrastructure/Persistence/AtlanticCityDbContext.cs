@@ -22,8 +22,8 @@ public class AtlanticCityDbContext : DbContext
             entity.Property(e => e.Cliente).IsRequired().HasMaxLength(150);
             entity.Property(e => e.Total).HasPrecision(10, 2);
             entity.Property(e => e.Estado).HasConversion<string>();
+            entity.Property(e => e.Eliminado).HasDefaultValue(false);
             entity.HasIndex(e => e.NumeroPedido).IsUnique();
-            entity.Ignore(e => e.Eliminado);
         });
 
         modelBuilder.Entity<Usuario>(entity =>

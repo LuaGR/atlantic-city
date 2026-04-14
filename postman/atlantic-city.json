@@ -1,0 +1,240 @@
+{
+  "info": {
+    "name": "Atlantic City API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5097",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth — /auth",
+      "item": [
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.token) {",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"admin@atlanticcity.com\",\n    \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.token) {",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"user@atlanticcity.com\",\n    \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login - Credenciales invalidas (401 esperado)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"noexiste@test.com\",\n    \"password\": \"wrong\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pedidos — /api/pedidos",
+      "item": [
+        {
+          "name": "GET Listar pedidos",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pedidos",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pedidos"]
+            }
+          }
+        },
+        {
+          "name": "GET Pedido por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pedidos/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pedidos", "1"]
+            }
+          }
+        },
+        {
+          "name": "POST Crear pedido",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"numeroPedido\": \"PED-001\",\n    \"cliente\": \"Juan Perez\",\n    \"fecha\": \"2025-01-10T00:00:00Z\",\n    \"total\": 250.75,\n    \"estado\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/pedidos",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pedidos"]
+            }
+          }
+        },
+        {
+          "name": "PUT Editar pedido",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"cliente\": \"Juan Perez Actualizado\",\n    \"fecha\": \"2025-01-15T00:00:00Z\",\n    \"total\": 380.00,\n    \"estado\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/pedidos/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pedidos", "1"]
+            }
+          }
+        },
+        {
+          "name": "DELETE Pedido (soft delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/pedidos/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pedidos", "1"]
+            }
+          }
+        },
+        {
+          "name": "POST Crear pedido - Total invalido (400 esperado)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"numeroPedido\": \"PED-ERR\",\n    \"cliente\": \"Test\",\n    \"fecha\": \"2025-01-10T00:00:00Z\",\n    \"total\": -10,\n    \"estado\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/pedidos",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pedidos"]
+            }
+          }
+        },
+        {
+          "name": "GET Pedidos - Sin token (401 esperado)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/pedidos",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pedidos"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
