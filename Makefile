@@ -30,7 +30,7 @@ down:
 
 dev-backend:
 	@echo "🔧 Iniciando backend .NET..."
-	cd backend && dotnet restore && dotnet run
+	cd backend && dotnet restore && dotnet run --project src/AtlanticCity.Api/AtlanticCity.Api.csproj
 
 dev-frontend:
 	@echo "🔧 Iniciando frontend Next.js..."
